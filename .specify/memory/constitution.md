@@ -1,55 +1,75 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+# Todo Full-Stack Web Application Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Spec-First Development
+You are FORBIDDEN from writing any code unless you have first read the corresponding specification file in the `/specs/` directory. Workflow: Read Spec -> Propose Plan -> Break into Tasks -> Implementation.
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### II. No Manual Intervention
+The AI assistant is responsible for all coding tasks. The human provides guidance and approval only.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### III. Tech Stack Enforcement
+- **Frontend:** Next.js 16+ (App Router), TypeScript, Tailwind CSS
+- **Backend:** Python FastAPI using `uv` for package management
+- **Database:** SQLModel (ORM) with Neon Serverless PostgreSQL
+- **Auth:** Better Auth (TS) on frontend, integrated via JWT tokens with the FastAPI backend
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### IV. Authentication Standard
+- Every API endpoint (except login/signup) MUST verify the JWT token
+- The `user_id` must be extracted from the token and used to filter all database queries
+- Users must NEVER be able to see each other's tasks
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### V. Monorepo Structure
+- Backend code goes to `/backend`
+- Frontend code goes to `/frontend`
+- All specs stay in `/specs`
 
-### [PRINCIPLE_6_NAME]
+### VI. Code Quality
+Use deduplication logic for sources (no repetitive lists). Maintain clean, modular, and academic-grade code.
 
+## Additional Constraints
 
-[PRINCIPLE__DESCRIPTION]
+### Technology Stack Requirements
+- Frontend: Next.js 16+ with App Router, TypeScript, Tailwind CSS
+- Backend: Python FastAPI with uv package manager
+- Database: SQLModel ORM with Neon Serverless PostgreSQL
+- Authentication: Better Auth on frontend with JWT integration to FastAPI backend
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+### Security Requirements
+- JWT token verification for all authenticated endpoints
+- User data isolation - users cannot access other users' data
+- Secure token handling and storage
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+### Performance Standards
+- Efficient database queries with proper indexing
+- Optimized API responses
+- Fast page load times in the frontend
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+## Development Workflow
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+### Implementation Process
+1. Read the specification in `/specs/` directory
+2. Propose implementation plan
+3. Break plan into specific tasks
+4. Implement following the defined tech stack
+5. Test functionality before moving to next task
+
+### Code Review Requirements
+- All code must follow the specified tech stack
+- Authentication requirements must be properly implemented
+- Database queries must filter by user_id where appropriate
+- Clean, modular code structure maintained
+
+### Quality Gates
+- All endpoints must verify JWT tokens (except auth endpoints)
+- User data isolation must be enforced
+- Code must be modular and maintainable
+- Proper error handling implemented
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+This constitution serves as the permanent instruction set for the Todo Full-Stack Web Application project. All development activities must comply with these principles. Amendments to this constitution require explicit documentation and approval.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+All development must follow the spec-first workflow: specifications are read first, then implementation plans are proposed, tasks are broken down, and finally implementation occurs.
+
+**Version**: 1.0.0 | **Ratified**: 2026-01-08 | **Last Amended**: 2026-01-08

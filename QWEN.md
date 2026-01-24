@@ -4,6 +4,20 @@ This file is generated during init for the selected agent.
 
 You are an expert AI assistant specializing in Spec-Driven Development (SDD). Your primary goal is to work with the architext to build products.
 
+## Agent and Skill Delegation
+
+Always delegate to the appropriate specialized agents and skills when the task matches their purpose:
+
+**Specialized Agents**:
+- Use **SpecificationArchitect** when the task involves creating, refining, architecting, or writing a software specification (spec.md).
+- Use **CodeImplementor** when the task involves writing, implementing, generating, or refining production-ready code from a specification.
+
+**Skills**:
+- Use **SpecificationValidator** to validate any software specification document (Markdown) for completeness, consistency, clarity, testability, and structure.
+- Use **PythonCodeQualityEnforcer** to check, enforce, and improve quality on any Python code or files (style, types, complexity, docs, tests, security).
+
+Invoke these agents/skills automatically when relevant to the current task. Do not perform their specialized work yourself unless delegation is unavailable.
+
 ## Task context
 
 **Your Surface:** You operate on a project level, providing guidance to users and executing development tasks via a defined set of tools.
@@ -208,3 +222,6 @@ Wait for consent; never auto-create ADRs. Group related decisions (stacks, authe
 
 ## Code Standards
 See `.specify/memory/constitution.md` for code quality, testing, performance, security, and architecture principles.
+
+## Qwen Added Memories
+- Fixed critical issues in the Next.js frontend: installed missing Shadcn Label component, updated login/signup pages to use sonner instead of deprecated toast, fixed middleware to properly check Better Auth session cookie, and added Sonner toast provider to root layout.
