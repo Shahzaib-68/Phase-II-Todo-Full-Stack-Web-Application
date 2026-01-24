@@ -16,7 +16,7 @@ class Task(SQLModel, table=True):
     user_id: str = Field(max_length=255, index=True)
     title: str = Field(min_length=1, max_length=200)
     description: Optional[str] = Field(default=None, max_length=1000)
-    priority: str = Field(default='medium', max_length=20)
+    priority: str = Field(default='medium', max_length=20)  # low, medium, high
     due_date: Optional[datetime] = Field(default=None)
     completed: bool = Field(default=False)
     created_at: datetime = Field(default_factory=datetime.utcnow)

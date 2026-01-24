@@ -69,14 +69,14 @@ class Settings(BaseSettings):
                 if self.environment == "development":
                     separator = "&" if "?" in self.database_url else "?"
                     self.database_url = f"{self.database_url}{separator}sslmode=disable"
-                    print(f"🔧 SSL disabled for development environment")
+                    print(f"SSL disabled for development environment")
                 # Production: Require SSL (for hosted databases like Neon, Supabase)
                 else:
                     separator = "&" if "?" in self.database_url else "?"
                     self.database_url = f"{self.database_url}{separator}sslmode=require"
-                    print(f"🔒 SSL required for production environment")
+                    print(f"SSL required for production environment")
             else:
-                print(f"🔒 Using SSL mode from DATABASE_URL")
+                print(f"Using SSL mode from DATABASE_URL")
         
         return self
 

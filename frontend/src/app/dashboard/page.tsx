@@ -156,7 +156,7 @@ export default function DashboardPage() {
   // ✅ Show loading state while checking auth
   if (isPending || (isLoading && !initialLoadComplete)) {
     return (
-      <div className="flex justify-center items-center h-64">
+      <div className="flex justify-center items-center h-screen">
         <p className="text-gray-400">Loading dashboard...</p>
       </div>
     );

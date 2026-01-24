@@ -25,8 +25,14 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
+    // Only run on client side to prevent SSR issues
+    if (typeof window === 'undefined') {
+      return;
+    }
+
     const checkSession = async () => {
       try {
         // better-auth ka getSession() yeh return karta hai: { data: { user, session } | null, ... }
@@ -49,6 +55,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         handleAuthClear();
       } finally {
         setIsLoading(false);
+        setIsInitialized(true);
       }
     };
 
@@ -103,6 +110,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     handleAuthClear();
   };
+
+  // Don't render children until auth state is initialized to prevent hydration mismatch
+  if (!isInitialized) {
+    return (
+      <AuthContext.Provider value={{ user, isLoading: true, signIn, signOut, getToken }}>
+        <div className="flex justify-center items-center h-screen">Loading...</div>
+      </AuthContext.Provider>
+    );
+  }
 
   return (
     <AuthContext.Provider value={{ user, isLoading, signIn, signOut, getToken }}>

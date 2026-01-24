@@ -8,6 +8,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Trash, Pencil, Check } from 'lucide-react';
+import EditTaskDialog from '@/components/EditTaskDialog';
 
 interface Task {
   id: number;
@@ -30,6 +31,8 @@ interface TaskListProps {
 export default function TaskList({ tasks, loading, onTaskUpdate }: TaskListProps) {
   const [localTasks, setLocalTasks] = useState<Task[]>([]);
   const [deletingTaskId, setDeletingTaskId] = useState<number | null>(null);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const { data: session } = authClient.useSession();
 
   useEffect(() => {
@@ -228,7 +231,8 @@ export default function TaskList({ tasks, loading, onTaskUpdate }: TaskListProps
                   size="icon"
                   className="text-gray-400 hover:text-white hover:bg-white/10"
                   onClick={() => {
-                    toast.info('Edit feature coming soon!');
+                    setEditingTask(task);
+                    setIsEditDialogOpen(true);
                   }}
                 >
                   <Pencil className="h-4 w-4" />
@@ -251,6 +255,14 @@ export default function TaskList({ tasks, loading, onTaskUpdate }: TaskListProps
           </motion.div>
         ))}
       </div>
+
+      {/* Edit Task Dialog */}
+      <EditTaskDialog
+        task={editingTask}
+        onTaskUpdated={onTaskUpdate}
+        open={isEditDialogOpen}
+        onOpenChange={setIsEditDialogOpen}
+      />
     </AnimatePresence>
   );
 }

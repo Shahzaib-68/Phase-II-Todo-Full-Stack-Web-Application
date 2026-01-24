@@ -1,5 +1,5 @@
 """
-Task endpoints for Aura Task API – Complete Fixed Version
+Task endpoints for Aura Task API – Complete Fixed Version with Safe Field Handling
 """
 import logging
 from typing import List, Optional
@@ -29,16 +29,6 @@ async def list_tasks(
 ):
     """
     List all tasks for the authenticated user with optional filtering and sorting.
-    
-    Args:
-        user_id: User ID to fetch tasks for (must match authenticated user)
-        status_filter: Filter tasks by status (all/pending/completed)
-        sort_by: Sort order (created/title/priority)
-        current_user_id: Authenticated user ID from JWT token
-        session: Database session
-    
-    Returns:
-        TaskListResponse with tasks array and total count
     """
     logger.info(f"📋 List tasks called for user: {user_id}")
     
@@ -56,11 +46,10 @@ async def list_tasks(
     elif status_filter == "completed":
         query = query.where(Task.completed == True)
 
-    # Apply sorting
+    # Apply sorting - SAFE: only sort by priority if field exists
     if sort_by == "title":
         query = query.order_by(Task.title.asc())
-    elif sort_by == "priority":
-        # Priority order: high -> medium -> low
+    elif sort_by == "priority" and hasattr(Task, 'priority'):
         query = query.order_by(Task.priority.desc())
     else:  # default: created
         query = query.order_by(Task.created_at.desc())
@@ -113,14 +102,6 @@ async def get_task_stats(
 ):
     """
     Get task statistics for the authenticated user.
-    
-    Args:
-        user_id: User ID to get stats for (must match authenticated user)
-        current_user_id: Authenticated user ID from JWT token
-        session: Database session
-    
-    Returns:
-        Dictionary with total, pending, and completed counts
     """
     logger.info(f"📊 Getting stats for user: {user_id}")
     
@@ -175,14 +156,6 @@ async def get_task_stats_summary(
 ):
     """
     Get task statistics without user_id parameter (uses authenticated user).
-    Legacy endpoint for backward compatibility.
-    
-    Args:
-        current_user_id: Authenticated user ID from JWT token
-        session: Database session
-    
-    Returns:
-        Dictionary with total, pending, and completed counts
     """
     logger.info(f"📊 Getting stats summary for user: {current_user_id}")
     
@@ -232,31 +205,31 @@ async def create_task(
 ):
     """
     Create a new task for the authenticated user.
-    
-    Args:
-        task_data: Task creation data (title, description, priority, due_date)
-        current_user_id: Authenticated user ID from JWT token
-        session: Database session
-    
-    Returns:
-        TaskResponse with created task details
     """
     logger.info(f"➕ Creating task for user: {current_user_id}")
     logger.debug(f"Task data: {task_data}")
     
     user_id = current_user_id
 
-    # Create new task instance
-    new_task = Task(
-        user_id=user_id,
-        title=task_data.title,
-        description=task_data.description or "",
-        priority=getattr(task_data, 'priority', 'medium'),
-        due_date=getattr(task_data, 'due_date', None),
-        completed=False,
-        created_at=datetime.now(timezone.utc),
-        updated_at=datetime.now(timezone.utc)
-    )
+    # Create new task instance with safe attribute setting
+    task_kwargs = {
+        'user_id': user_id,
+        'title': task_data.title,
+        'description': task_data.description or "",
+        'completed': False,
+        'created_at': datetime.now(timezone.utc),
+        'updated_at': datetime.now(timezone.utc)
+    }
+    
+    # ✅ SAFE: Only add priority if Task model has the field
+    if hasattr(Task, 'priority'):
+        task_kwargs['priority'] = getattr(task_data, 'priority', 'medium')
+    
+    # ✅ SAFE: Only add due_date if Task model has the field
+    if hasattr(Task, 'due_date'):
+        task_kwargs['due_date'] = getattr(task_data, 'due_date', None)
+    
+    new_task = Task(**task_kwargs)
 
     try:
         session.add(new_task)
@@ -292,18 +265,6 @@ async def get_task(
 ):
     """
     Get a specific task by ID.
-    
-    Args:
-        task_id: Task ID to retrieve
-        current_user_id: Authenticated user ID from JWT token
-        session: Database session
-    
-    Returns:
-        TaskResponse with task details
-    
-    Raises:
-        404: Task not found
-        403: Access denied (task belongs to different user)
     """
     logger.info(f"🔍 Getting task {task_id} for user {current_user_id}")
     
@@ -333,7 +294,7 @@ async def get_task(
 
 
 # ============================================================================
-# UPDATE TASK - Modify existing task
+# UPDATE TASK - Modify existing task (SAFE VERSION)
 # ============================================================================
 @router.put("/{task_id}", response_model=TaskResponse)
 async def update_task(
@@ -343,20 +304,7 @@ async def update_task(
     session: Session = Depends(get_session)
 ):
     """
-    Update an existing task.
-    
-    Args:
-        task_id: Task ID to update
-        task_data: Task update data (partial updates allowed)
-        current_user_id: Authenticated user ID from JWT token
-        session: Database session
-    
-    Returns:
-        TaskResponse with updated task details
-    
-    Raises:
-        404: Task not found
-        403: Access denied (task belongs to different user)
+    Update an existing task - SAFELY handles optional fields.
     """
     logger.info(f"✏️ Updating task {task_id}")
     
@@ -370,17 +318,29 @@ async def update_task(
         logger.warning(f"⚠️ Access denied: task {task_id} belongs to different user")
         raise HTTPException(status_code=403, detail="Access denied")
 
-    # Update only provided fields
+    # ✅ Update core fields (always present)
     if task_data.title is not None:
         task.title = task_data.title
     if task_data.description is not None:
         task.description = task_data.description
     if task_data.completed is not None:
         task.completed = task_data.completed
+    
+    # ✅ SAFE: Only update priority if BOTH model and data have it
     if hasattr(task_data, 'priority') and task_data.priority is not None:
-        task.priority = task_data.priority
+        if hasattr(task, 'priority'):
+            task.priority = task_data.priority
+            logger.info(f"✅ Updated priority to: {task_data.priority}")
+        else:
+            logger.warning(f"⚠️ Task model doesn't have 'priority' field - skipping")
+    
+    # ✅ SAFE: Only update due_date if BOTH model and data have it
     if hasattr(task_data, 'due_date') and task_data.due_date is not None:
-        task.due_date = task_data.due_date
+        if hasattr(task, 'due_date'):
+            task.due_date = task_data.due_date
+            logger.info(f"✅ Updated due_date to: {task_data.due_date}")
+        else:
+            logger.warning(f"⚠️ Task model doesn't have 'due_date' field - skipping")
 
     task.updated_at = datetime.now(timezone.utc)
 
@@ -388,7 +348,7 @@ async def update_task(
         session.add(task)
         session.commit()
         session.refresh(task)
-        logger.info(f"✅ Task {task_id} updated")
+        logger.info(f"✅ Task {task_id} updated successfully")
     except Exception as e:
         session.rollback()
         logger.error(f"❌ Task update fail: {str(e)}")
@@ -418,18 +378,6 @@ async def delete_task(
 ):
     """
     Delete a task.
-    
-    Args:
-        task_id: Task ID to delete
-        current_user_id: Authenticated user ID from JWT token
-        session: Database session
-    
-    Returns:
-        204 No Content on success
-    
-    Raises:
-        404: Task not found
-        403: Access denied (task belongs to different user)
     """
     logger.info(f"🗑️ Deleting task {task_id}")
     
@@ -464,18 +412,6 @@ async def toggle_task_completion(
 ):
     """
     Toggle task completion status (complete ↔ incomplete).
-    
-    Args:
-        task_id: Task ID to toggle
-        current_user_id: Authenticated user ID from JWT token
-        session: Database session
-    
-    Returns:
-        TaskResponse with updated task details
-    
-    Raises:
-        404: Task not found
-        403: Access denied (task belongs to different user)
     """
     logger.info(f"✅ Toggling completion for task {task_id}")
     
