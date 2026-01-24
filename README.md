@@ -4,7 +4,7 @@
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Python](https://img.shields.io/badge/python-3.13-blue.svg)
-![Next.js](https://img.shields.io/badge/next.js-15-black.svg)
+![Next.js](https://img.shields.io/badge/next.js-16-black.svg)
 
 ## 📋 Overview
 
@@ -31,7 +31,7 @@ Aura Task is a production-ready todo application featuring secure authentication
 - **Uvicorn** - ASGI server
 
 ### Frontend
-- **Next.js 15** - React framework with App Router
+- **Next.js 16** - React framework with App Router
 - **TypeScript** - Type-safe JavaScript
 - **Tailwind CSS** - Utility-first styling
 - **Framer Motion** - Smooth animations
@@ -79,7 +79,7 @@ MY_TODO_APP_II/
 ### Prerequisites
 
 - **Python 3.13+**
-- **Node.js 18+** and npm/pnpm
+- **Node.js 18+** and npm
 - **PostgreSQL** (or use Neon cloud database)
 - **Git**
 
